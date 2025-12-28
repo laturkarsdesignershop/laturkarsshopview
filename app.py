@@ -1,16 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 
 import requests, re, json
-from functools import wraps
 import base64, os, psutil, time, calendar
 from datetime import date, datetime, timedelta
-import socket, platform, httpagentparser, random, string
-
-import io
-from io import BytesIO
-from calendar import monthrange
-
-from PIL import Image, ImageDraw, ImageFont
 
 
 import mysql.connector
@@ -64,7 +56,7 @@ def convertDateFilter(inputDate):
         year, month, day = parts
         return f"{day}-{month}-{year}"
     except Exception as err:
-        print(f"Error: {err}")
+        print(f"Error Fun(convertDateFilter): {err}")
         return inputDate
 
 app.jinja_env.filters["convertDate"] = convertDateFilter
