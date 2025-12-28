@@ -4,15 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}{{session['platform']}}{% endblock %}</title>
-  <script src="{{ url_for('static', filename='jsfiles/tailwindcss.js') }}"></script>
 
-  <style>
-    {% block mystyle %}{% endblock %}
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='jsfiles/font-awesome.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
+
+  <style>{% block mystyle %}{% endblock %}</style>
+
 
   <style>
     .mobileNav {
@@ -53,7 +51,7 @@
 
   <!-- Fixed Header -->
   <header class="fixed top-0 left-0 w-full h-16 bg-white shadow flex items-center justify-between px-4 z-50">
-    <img src="{{ url_for('static', filename='siteimgs/laturkarlogo.webp') }}" class="h-12 rounded-md">
+    <img src="https://raw.githubusercontent.com/laturkarsdesignershop/laturkarsshopview/refs/heads/main/static/siteimgs/laturkarlogo.webp" class="h-12 rounded-md">
     <button id="burgerBtn" class="text-3xl"><i class="fas fa-bars"></i></button>
   </header>
 
@@ -79,9 +77,12 @@
     </div>
   </main>
 
-  <script src="{{ url_for('static', filename='jsfiles/html2canvas.js') }}"></script>
-  <script src="{{ url_for('static', filename='jsfiles/jspdf.js') }}"></script>
-  <script src="{{ url_for('static', filename='jsfiles/chart.js') }}"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.min.js"></script>
+
+
 
   <script>
     // toggles sidebar in mobile view safely

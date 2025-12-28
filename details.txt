@@ -19,7 +19,12 @@ https://hpanel.hostinger.com/websites/laturkarsdesigner.com/databases/remote-my-
 
 
 
-
+# defaultConfig = {    
+#     "Hosting_host" : "auth-db788.hstgr.io",
+#     "Hosting_database" : "u777474409_ltmobileview",
+#     "Hosting_user" : "u777474409_laturkarsmv",
+#     "Hosting_password" : "LaturkarsMV@1234"
+#     }
 
 
 

@@ -7,19 +7,21 @@ from datetime import date, datetime, timedelta
 
 import mysql.connector
 from mysql.connector import Error
-
+import os
 
 
 
 app = Flask(__name__)
 app.secret_key = "myStrongSecretKey456"
 
+
 defaultConfig = {    
-    "Hosting_host" : "auth-db788.hstgr.io",
-    "Hosting_database" : "u777474409_ltmobileview",
-    "Hosting_user" : "u777474409_laturkarsmv",
-    "Hosting_password" : "LaturkarsMV@1234"
+    "Hosting_host" : os.getenv("DB_HOST"),
+    "Hosting_database" : os.getenv("DB_NAME"),
+    "Hosting_user" : os.getenv("DB_USER"),
+    "Hosting_password" : os.getenv("DB_PASS")
     }
+
 
 def createConnection():
     """
@@ -84,6 +86,21 @@ def aboutUsPage():
 
 
 
+@app.route("/testdb")
+def testDb():
+    """
+    Quick DB connection test endpoint.
+    Shows if the database connection works.
+    """
+    try:
+        conn = createConnection()
+        if not conn:
+            return "❌ DB Connection Failed", 500
+        conn.close()
+        return "✅ DB Connection Successful", 200
+
+    except Exception as err:
+        return f"⚠ DB Error: {err}", 500
 
 
 
@@ -163,7 +180,7 @@ def listOrders():
         conn = createConnection()
         if not conn:
             flash("DB connection failed", "error")
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("homePage"))
 
         keyword = request.args.get("keyword", "")
         page = int(request.args.get("page", 1))
