@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Orders - {{ session['platform'] }}{% endblock %}
+
+{% block content %}
+
+<!-- messages -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="mb-4">
+  {% for message in messages %}
+  <li class="bg-green-100 p-2 rounded text-gray-700 text-sm">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<!-- Top Header -->
+<div class="mb-3">
+  <h1 class="text-md font-bold text-gray-900">Orders ({{ content.perPage }}/{{ content.orderlen }})</h1>
+
+  {% if content.keyword %}
+  <p class="text-xs text-gray-600 font-medium">Searched by {{ content.keyword }}</p>
+  {% endif %}
+</div>
+
+<!-- Filter Dropdown -->
+<form method="POST" class="mb-3">
+  <select name="keyword" onchange="this.form.submit()" 
+    class="w-full p-1 border border-gray-300 rounded focus:ring-indigo-600 focus:border-indigo-600 text-xs">
+    <option value="">Filter Orders</option>
+    {% for filter in content.test_keywords %}
+      <option value="{{ filter }}">{{ filter | title }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+<!-- Search -->
+<form method="POST" action="{{ url_for('listOrders') }}" class="flex gap-1 mb-1">
+  <input type="text" name="keyword" placeholder="Search orders..." value="{{ content.keyword }}"
+    class="flex-1 p-2 border rounded-l-md text-sm focus:ring-indigo-600 focus:border-indigo-600">
+  <button type="submit"
+    class="px-3 py-2 rounded-r-md bg-indigo-600 text-white text-sm"><i class="fas fa-search"></i></button>
+</form>
+
+
+<!-- Order Cards -->
+{% if orders %}
+<div class="space-y-3">
+  {% for o in orders %}
+  <div class="bg-white border rounded-lg shadow p-1">
+
+    <!-- Header Row -->
+    <div class="flex justify-between items-center">
+      <p class="text-sm font-bold"><i class="text-xs text-gray-600">Order: </i>{{ o.id_order }}</p>
+      <span class="text-xs bg-yellow-800 text-white px-2 py-0.5 rounded font-bold">Bal Pay : Rs. {{ o.balAmt }}</span>
+      <span class="text-xs bg-gray-800 text-white px-2 py-0.5 rounded">{% if o.payment_status %}{{ o.payment_status | title }}{% else %} Unknown {% endif %}</span>
+    </div>
+
+    <!-- Customer -->
+    <p class="text-base font-semibold">{{ o.customer_name | title }}</p>
+    <p class="text-sm text-gray-600">{{ o.customerMobile }} {{ o.customerPhone }}</p>
+
+    <!-- Delivery Date -->
+    <p class="text-sm font-medium text-blue-700">Delivery: {{ o.delivery_date | convertDate }}</p>
+
+    <!-- Items -->
+    <div class="mt-2">
+      <!-- <p class="text-xs font-semibold text-gray-700">Items</p> -->
+      <ul class="text-xs text-gray-700">
+        <div class="grid grid-cols-4 gap-1 bg-gray-200 rounded-sm font-bold">
+          <div class="text-center">Item</div>
+          <div class="text-center">Cut Staff</div>
+          <div class="text-center">Stit Staff</div>
+          <div class="text-center">Status</div>
+        </div>
+        {% for itm in o.products %}
+        <!-- <div>{{itm}}</div> -->
+        <div class="grid grid-cols-4 gap-1 pl-1">
+
+          
+
+          {% if itm.shirt_type != None %}
+            <div>{{ loop.index }}. {{ itm.shirt_type | title }} x{{ itm.qty }}</div> 
+            <div class="text-center">{{ itm.p_stitching_staff | title }}</div>
+            <div class="text-center">{{ itm.p_cutting_staff | title }}</div> 
+
+          {% else %}
+            <div>{{ loop.index }}. {{ itm.pant_type | title }} x{{ itm.qty }} </div>
+            <div class="text-center">{{ itm.p_stitching_staff | title }}</div> 
+            <div class="text-center">{{ itm.p_cutting_staff | title }}</div>
+          {% endif %}
+
+
+          {% if "delivered" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-blue-800 text-white text-xs">Delivered</div>
+          {% elif "sew" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-orange-600 text-white text-xs">Stitching</div>
+          {% elif "cutting" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-red-900 text-white text-xs">Cutting</div>
+          {% elif "ready" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-green-800 text-white text-xs">Ready</div>
+          {% elif "new" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-green-300  text-xs">New</div>
+          {% else %}
+            <div class="font-bold text-center rounded-md bg-gray-800 text-xs">{{itm.jobstatus}}</div>
+          {% endif %}
+
+
+        </div>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Job Status -->
+    <div class="mt-2 flex flex-wrap gap-1">
+      {% for itm in o.jobStatus %}
+        {% set status = itm | lower %}
+        {% if "cut" in status %}
+          <span class="px-2 py-1 bg-red-600 text-white text-xs rounded">Cutting</span>
+        {% elif "sew" in status %}
+          <span class="px-2 py-1 bg-orange-600 text-white text-xs rounded">Stitching</span>
+        {% elif "waiting" in status %}
+          <span class="px-2 py-1 bg-green-700 text-white text-xs rounded">Ready</span>
+        {% elif "delivered" in status %}
+          <span class="px-2 py-1 bg-blue-700 text-white text-xs rounded">Delivered</span>
+        {% else %}
+          <span class="px-2 py-1 bg-gray-700 text-white text-xs rounded">{{ itm | title }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-3 flex justify-end hidden">
+      <a href="/orders/view/{{ o.id_order }}" class="text-blue-600 text-sm font-semibold hover:underline">
+        View Details →
+      </a>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-center py-4 text-gray-600">No orders found</p>
+{% endif %}
+
+
+<!-- Pagination -->
+{% if content.totalPages > 1 %}
+<div class="flex justify-between items-center text-sm mt-4">
+  {% if content.page > 1 %}
+  <a href="{{ url_for('listOrders', page=content.page-1, per_page=content.perPage, keyword=content.keyword) }}"
+    class="px-3 py-1 rounded bg-gray-200 font-medium">← Prev</a>
+  {% endif %}
+
+  <span>Page {{ content.page }} / {{ content.totalPages }}</span>
+
+  {% if content.page < content.totalPages %}
+  <a href="{{ url_for('listOrders', page=content.page+1, per_page=content.perPage, keyword=content.keyword) }}"
+    class="px-3 py-1 rounded bg-gray-200 font-medium">Next →</a>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

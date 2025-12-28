@@ -1,0 +1,38 @@
+
+
+
+
+
+
+Order: 77569
+
+Partly Paid
+Atharva Pawar 456
+
+
+Delivery: 2025-12-09
+
+Items
+
+1. {'id_product': 175491, 'id_order': 77569, 'id_staff': None, 'cutting_staff': None, 'id_customers': None, 'id_main_cat': None, 'id_cat': None, 'qty': 1, 'shirt_type': None, 'shirt_sub_type': None, 'pocket_type': None, 'collar_type': None, 'cuff_type': None, 'patti_type': None, 'cut_type': None, 'shirt_height': None, 'shirt_munda': None, 'shirt_chest': None, 'shirt_front_loose_1': None, 'shirt_front_loose_2': None, 'shirt_front_loose_3': None, 'shirt_stomach_width': None, 'shirt_seat': None, 'shoulder_width': None, 'shoulder_down': None, 'astin_width': None, 'astin_loose_width': None, 'collor_width': None, 'cuff_width': None, 'shirt_description': None, 'pant_type': 'pant', 'pant_press': '12', 'pant_sub_type': 'none', 'pant_front_pocket_type': 'none', 'pant_back_pocket_type': 'none', 'pant_watch_pocket_type': 'none', 'pant_height': '21', 'many': '12', 'pant_waist_width': '12', 'pant_seat_width': '2112', 'thigh_width': '12', 'knee': '212', 'pant_bottom': '12', 'hl_waist': '', 'low_waist_text': '', 'pant_description': '', 'status': 'new Order', 'image': None, 'stipend': 175.0, 'stipend_status': 'pending', 'cutting_stipend': 24.0, 'cutting_stipend_status': 'pending', 'stitching_price': 580.0, 'cutting_allote_date': None, 'cutting_return_date': None, 'stitching_allote_date': None, 'stitching_return_date': None, 'metadata1': '*', 'metadata2': '[{"clothid": 38, "clothname": "silk123456", "clothmeter": 1.0, "clothcost": 10.0, "subtotal": 10.0}]', 'clothunit': '1.0', 'clothtype': '38', 'clothcost': '10.0', 'totalamount': '10.0', 'product_balancecloth': '0', 'urgentinfo': '*', 'itemcost': '0.0', 'gender': 'male', 'serverup': 'no', 
+
+'barcodeimg':
+
+
+
+
+
+
+
+
+{'id_product': 175488, 'id_order': 77566, 'id_staff': 308, 'cutting_staff': 285, 'id_customers': None, 'id_main_cat': None, 'id_cat': None, 'qty': 1, 'shirt_type': 'SHIRT', 'shirt_sub_type': 'None', 'pocket_type': 'None', 'collar_type': 'None', 'cuff_type': '', 'patti_type': 'None', 'cut_type': 'None', 'shirt_height': '21', 'shirt_munda': '12', 'shirt_chest': '12', 'shirt_front_loose_1': '12', 'shirt_front_loose_2': '12', 'shirt_front_loose_3': '21', 'shirt_stomach_width': '12', 'shirt_seat': '12', 'shoulder_width': '12', 'shoulder_down': '21', 'astin_width': '12', 'astin_loose_width': None, 'collor_width': '12', 'cuff_width': '12', 'shirt_description': None, 'pant_type': None, 'pant_press': None, 'pant_sub_type': None, 'pant_front_pocket_type': None, 'pant_back_pocket_type': None, 'pant_watch_pocket_type': None, 'pant_height': None, 'many': None, 'pant_waist_width': None, 'pant_seat_width': None, 'thigh_width': None, 'knee': None, 'pant_bottom': None, 'hl_waist': None, 'low_waist_text': None, 'pant_description': None, 'status': 'Sewing in progress', 'image': None, 'stipend': 0.0, 'stipend_status': 'pending', 'cutting_stipend': 50.0, 'cutting_stipend_status': 'pending', 'stitching_price': 480.0, 'cutting_allote_date': '2025-12-09', 'cutting_return_date': '2025-12-09', 'stitching_allote_date': '2025-12-09', 'stitching_return_date': None, 'metadata1': '*', 'metadata2': '*', 'clothunit': '2,', 'clothtype': '72,', 'clothcost': '1000.0,', 'totalamount': '2000.0', 'product_balancecloth': '0', 'urgentinfo': '*', 'itemcost': '0.0', 'gender': 'male', 'serverup': 'no', 'barcodeimg':
+status
+
+cutting_return_date
+'stitching_return_date': None
+
+'cutting_allote_date': '2025-12-09', 
+'cutting_return_date': '2025-12-09', 
+'stitching_allote_date': '2025-12-09', 
+'stitching_return_date': None,
+

@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Customers - {{session['platform']}}{% endblock %}
+
+
+{% block breadcrumb %}
+Customers
+{% endblock %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <ul class="mb-6">
+    {% for message in messages %}
+        <li class="bg-green-100 p-2 rounded mb-2 text-gray-700">{{ message }}</li>
+    {% endfor %}
+    </ul>
+{% endif %}
+{% endwith %}
+
+<!-- Header -->
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-semibold text-gray-900">Customer List  (Results: {{ content.customerDatalen }}/{{ content.customerslen }})
+  </h1>
+
+  <div class="flex items-center space-x-4 ">
+    <h2 class="text-sm font-semibold text-gray-900">Load Count Options</h2>
+    <select name="limit" onchange="window.location.href=this.value" class="border border-gray-300 rounded-md py-2 px-4">
+      <option value="{{ url_for('listCustomers', limit=5) }}">---</option>
+      <option value="{{ url_for('listCustomers', limit=10) }}">Load 10</option>
+      <option value="{{ url_for('listCustomers', limit=50) }}">Load 50</option>
+      <option value="{{ url_for('listCustomers', limit=100) }}">Load 100</option>
+      <option value="{{ url_for('listCustomers', limit=500) }}">Load 500</option>
+      <option value="{{ url_for('listCustomers', limit=1000) }}">Load 1000</option>
+      <option value="{{ url_for('listCustomers', limit=5000) }}">Load 5000</option>
+      <option value="{{ url_for('listCustomers', limit=10000) }}">Load 10000</option>
+    </select>
+  </div>
+
+
+
+  <a href="{{ url_for('addCustomer') }}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center transition duration-150 ease-in-out">
+    <i class="fas fa-plus mr-2"></i>
+    Add
+  </a>
+
+
+  <a href="{{ url_for('listDeletedCustomers') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex items-center transition duration-150 ease-in-out">
+    <i class="fas fa-trash mr-2"></i>
+    View Deleted
+  </a>
+
+
+
+</div>
+
+<!-- Search Form -->
+<form method="POST" action="{{ url_for('listCustomers') }}" class="flex items-center mb-2">
+  <input type="text" name="keyword" placeholder="Search customers..." value="{{ content.keyword }}"
+    class="w-full p-2 border border-gray-300 rounded-l-md focus:ring-[#0972D3] focus:border-[#0972D3] outline-none">
+  <button type="submit"
+    class="bg-[#0972D3] hover:bg-[#065299] text-white px-4 py-2 rounded-r-md flex items-center">
+    <i class="fas fa-search mr-2"></i> Search
+  </button>
+</form>
+
+<!-- Scrollable Customers Table -->
+<div class="overflow-x-auto rounded-md border border-gray-200" style="max-height: 650px; overflow-y: auto;">
+  <table class="min-w-full bg-white rounded-lg">
+    <thead class="bg-yellow-600 text-white sticky top-0 z-10">
+      <tr>
+        <th class="px-4 py-2 text-left text-center">ID</th>
+        <th class="px-4 py-2 text-left">Customer Name</th>
+        <!-- <th class="px-4 py-2 text-left">Address</th> -->
+        <!-- <th class="px-4 py-2 text-left">Phone</th> -->
+        <th class="px-4 py-2 text-left">Join Date</th>
+        <th class="px-4 py-2 text-left">Mobile</th>
+        <th class="px-4 py-2 text-center">Orders</th>
+
+        <th class="px-4 py-2 text-left">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if customers %}
+        {% for customer in customers %}
+        <tr class="border-t border-gray-200 hover:bg-gray-50">
+          <td class="px-4 py-2  text-center">{{ customer.id_customers }}</td>
+          <td class="px-4 py-2">{{ customer.fullname }}</td>
+          <!-- <td class="px-4 py-2">{{ customer.address }}</td> -->
+          <!-- <td class="px-4 py-2">{{ customer.phone }}</td> -->
+          <td class="px-4 py-2">{{ customer.joindate }}</td>
+          <td class="px-4 py-2">{{ customer.mobile }}</td>
+
+
+          <td class="px-4 py-2 text-center">
+            <a href="/customerorder?id={{ customer.id_customers }}" class="bg-blue-400 hover:bg-blue-700 text-white px-2 py-1 rounded">
+              View Order ({{ customer.orders }})
+            </a>
+          </td>
+          
+            <td class="px-4 py-2">
+              <a href="/customers/edit/{{ customer.id_customers }}" class="text-blue-600 hover:underline">
+                <i class="fas fa-pen text-lg mr-2"></i> Edit
+              </a>
+            </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="8" class="px-4 py-6 text-center text-gray-600">No customers found.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

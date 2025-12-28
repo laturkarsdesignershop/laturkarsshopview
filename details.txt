@@ -9,3 +9,25 @@ gunicorn app:app
 
 
 
+
+
+
+
+
+https://hpanel.hostinger.com/websites/laturkarsdesigner.com/databases/remote-my-sql 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# old:
+gunicorn app.wsgi

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{session['platform']}}{% endblock %}</title>
+  <script src="{{ url_for('static', filename='jsfiles/tailwindcss.js') }}"></script>
+
+  <style>
+    {% block mystyle %}{% endblock %}
+  </style>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='jsfiles/font-awesome.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/qz-tray/qz-tray.js"></script>
+
+  <style>
+    .mobileNav {
+      position: fixed;
+      top: 0;
+      right: -250px;
+      width: 250px;
+      height: 100vh;
+      background: #FAF8F0;
+      border-left: 2px solid #4b5563;
+      padding: 20px;
+      transition: right 0.3s ease-in-out;
+      z-index: 50;
+    }
+    .mobileNav.active {
+      right: 0;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 40;
+    }
+    .overlay.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+  <!-- Overlay -->
+  <div id="overlay" class="overlay"></div>
+
+  <!-- Fixed Header -->
+  <header class="fixed top-0 left-0 w-full h-16 bg-white shadow flex items-center justify-between px-4 z-50">
+    <img src="{{ url_for('static', filename='siteimgs/laturkarlogo.webp') }}" class="h-12 rounded-md">
+    <button id="burgerBtn" class="text-3xl"><i class="fas fa-bars"></i></button>
+  </header>
+
+  <!-- Mobile Sidebar -->
+  <nav id="mobileNav" class="mobileNav">
+    
+    <!-- Close Btn -->
+    <button id="navCloseBtn" class="text-2xl absolute top-4 right-4">
+      <i class="fas fa-times"></i>
+    </button>
+
+    <ul class="space-y-3 text-xl font-semibold mt-12">
+      <li><a href="/" class="block p-2 hover:bg-gray-200"><i class="fas fa-home mr-2"></i> Dashboard</a></li>
+      <!-- <li><a href="/customers/list" class="block p-2 hover:bg-gray-200"><i class="fas fa-user mr-2"></i> Customer</a></li> -->
+      <li><a href="/orders" class="block p-2 hover:bg-gray-200"><i class="fas fa-list mr-2"></i> Orders</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pt-20 pb-24 p-0.5">
+    <div class="bg-white border rounded-lg p-1 shadow">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+  <script src="{{ url_for('static', filename='jsfiles/html2canvas.js') }}"></script>
+  <script src="{{ url_for('static', filename='jsfiles/jspdf.js') }}"></script>
+  <script src="{{ url_for('static', filename='jsfiles/chart.js') }}"></script>
+
+  <script>
+    // toggles sidebar in mobile view safely
+    function toggleSidebar() {
+      try {
+        mobileNav.classList.toggle("active");
+        overlay.classList.toggle("active");
+      } catch (err) {
+        console.error("sidebarToggleError:", err);
+      }
+    }
+
+    // safely close the sidebar
+    function closeSidebar() {
+      try {
+        mobileNav.classList.remove("active");
+        overlay.classList.remove("active");
+      } catch (err) {
+        console.error("sidebarCloseError:", err);
+      }
+    }
+
+    const burgerBtn = document.getElementById("burgerBtn");
+    const mobileNav = document.getElementById("mobileNav");
+    const overlay = document.getElementById("overlay");
+    const navCloseBtn = document.getElementById("navCloseBtn");
+
+    burgerBtn?.addEventListener("click", toggleSidebar);
+    navCloseBtn?.addEventListener("click", closeSidebar);
+
+    // clicking outside closes sidebar
+    overlay?.addEventListener("click", closeSidebar);
+  </script>
+
+</body>
+</html>

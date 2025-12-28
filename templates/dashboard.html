@@ -1,0 +1,21 @@
+<!-- dashboard.html -->
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ session['platform'] }}{% endblock %}
+{% block content %}
+
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<ul class="mb-4">
+  {% for message in messages %}
+  <li class="bg-green-100 p-2 rounded mb-2">{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endwith %}
+
+<h1 class="text-xl font-semibold mb-2">Welcome to Laturkars Mobile View Dashboard</h1>
+<p class="text-sm mb-4">Manage your tailoring business - Only View</p>
+
+<a href="/orders" class="underline text-blue-600 font-medium">View Orders</a>
+
+{% endblock %}
