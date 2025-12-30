@@ -1,57 +1,61 @@
+import inspect
+import traceback
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
-
-import requests, re, json
-import base64, os, psutil, time, calendar
-from datetime import date, datetime, timedelta
-
-
-import mysql.connector
-from mysql.connector import Error
+import requests
+from datetime import datetime
 import os
-
-
 
 app = Flask(__name__)
 app.secret_key = "myStrongSecretKey456"
 
-
-defaultConfig = {    
-    "Hosting_host" : os.getenv("DB_HOST"),
-    "Hosting_database" : os.getenv("DB_NAME"),
-    "Hosting_user" : os.getenv("DB_USER"),
-    "Hosting_password" : os.getenv("DB_PASS")
-    }
-
-
-def createConnection():
-    """
-    Creates and returns MySQL DB connection
-    IO: None → MySQL connection object
-    """
+# =======================
+# SQL POST Helper
+# =======================
+def postSqlQuery(sqlQuery):
+    """Send SQL query via POST and return response as dict."""
     try:
-        conn = mysql.connector.connect(
-            host=defaultConfig["Hosting_host"],
-            database=defaultConfig["Hosting_database"],
-            user=defaultConfig["Hosting_user"],
-            password=defaultConfig["Hosting_password"]
+        print(f"🔑 Executing SQL: {sqlQuery}")
+        r = requests.post(
+            "https://darkviolet-mosquito-473241.hostingersite.com/default.php",
+            data={
+                "sql": sqlQuery,
+                "secretKey1": "thisis$!@$%Hostinger",
+                "secretKey2": "Hostinger#123LatLong"
+            },
+            timeout=10
         )
-        if conn.is_connected():
-            print("Connection successful")
-            return conn
-    except Error as e:
-        print(f"Connection error: {e}")
+        r.raise_for_status()
+        return r.json() if r.headers.get("Content-Type") == "application/json" else {"responseText": r.text}
+    except requests.RequestException as e:
+        print("❌ Error executing SQL:", e)
+        print("Line:", traceback.extract_tb(e.__traceback__)[-1].lineno)
         return None
 
-
-
-
-def convertDateFilter(inputDate):
-    """
-    Jinja filter to convert date YYYY-MM-DD to DD-MM-YYYY.
-    IO: Takes string inputDate, returns converted string.
-    Working: Splits date, rearranges and returns formatted value.
-    """
+def executeQuery(sql, fetchAll=False, fetchOne=False):
+    """Execute SQL using postSqlQuery."""
     try:
+        result = postSqlQuery(sql)
+        if not result or not result.get("success"):
+            return None
+        data = result.get("data", [])
+        if fetchOne:
+            return data[0] if data else None
+        if fetchAll:
+            return data
+        return True
+    except Exception as e:
+        print(f"❌ executeQuery Error: {e}")
+        print("Line:", traceback.extract_tb(e.__traceback__)[-1].lineno)
+        return None
+
+# =======================
+# Utility Functions
+# =======================
+def convertDateFilter(inputDate):
+    """Convert date from YYYY-MM-DD to DD-MM-YYYY."""
+    try:
+        if "-" not in inputDate:
+            return inputDate
         parts = inputDate.split("-")
         if len(parts) != 3:
             raise ValueError("Invalid date format")
@@ -59,129 +63,27 @@ def convertDateFilter(inputDate):
         return f"{day}-{month}-{year}"
     except Exception as err:
         print(f"Error Fun(convertDateFilter): {err}")
+        print("Line:", traceback.extract_tb(err.__traceback__)[-1].lineno)
         return inputDate
 
 app.jinja_env.filters["convertDate"] = convertDateFilter
-    
 
+# =======================
+# Routes
+# =======================
 @app.route("/")
 def homePage():
-    """
-    Returns the mobile view welcome message for the root route.
-    """
+    """Render dashboard page."""
     try:
-        # return "hello laturkars render mobil view"
         return render_template("dashboard.html")
-
     except Exception as error:
+        print("Line:", traceback.extract_tb(error.__traceback__)[-1].lineno)
         return jsonify({"error": str(error)}), 500
-
-
-@app.route("/aboutus")
-def aboutUsPage():
-    try:
-        return "this is laturkars about us page"
-    except Exception as error:
-        return jsonify({"error": str(error)}), 500
-
-
-
-@app.route("/testdb")
-def testDb():
-    """
-    Quick DB connection test endpoint.
-    Shows if the database connection works.
-    """
-    try:
-        conn = createConnection()
-        if not conn:
-            return "❌ DB Connection Failed", 500
-        conn.close()
-        return "✅ DB Connection Successful", 200
-
-    except Exception as err:
-        return f"⚠ DB Error: {err}", 500
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# ===========================================================================================
-# Section: Order Routes 
-# ===========================================================================================
-
-
-
-
-
-def executeQuery(conn, query, params=None, fetchAll=False, fetchOne=False):
-    """
-    Execute SQL using MySQL connector.
-    Supports select & update queries with automatic commit handling.
-    """
-    try:
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute(query, params or {})
-        if fetchAll:
-            return cursor.fetchall()
-        if fetchOne:
-            return cursor.fetchone()
-
-        conn.commit()
-        return True
-
-    except Error as err:
-        print(f"❌ SQL Error: {err}")
-        return None
-
-
-def getStaffNameById(conn, staffId):
-    """
-    Get staff fullname by staff ID.
-    io:
-        input: DB connection + staffId (int)
-        output: fullname (str) or None if not found
-    """
-    try:
-        if staffId is None:
-            return "-"
-        sql = """
-            SELECT fullname 
-            FROM tailor_staff
-            WHERE id_staff = %(sid)s
-            AND status != 'Deleted'
-            LIMIT 1
-        """
-        result = executeQuery(conn,sql,{"sid": staffId},fetchOne=True)
-        if result and result.get("fullname"):
-            return result["fullname"]
-        return "-"
-
-    except Exception as err:
-        print(f"❌ Failed to fetch staff name: {err}")
-        return "-"
-
-
 
 @app.route("/orders", methods=["GET", "POST"])
 def listOrders():
+    """List orders with optional filters."""
     try:
-        conn = createConnection()
-        if not conn:
-            flash("DB connection failed", "error")
-            return redirect(url_for("homePage"))
-
         keyword = request.args.get("keyword", "")
         page = int(request.args.get("page", 1))
         perPage = int(request.args.get("per_page", 10))
@@ -189,122 +91,112 @@ def listOrders():
 
         if request.method == "POST":
             keyword = request.form.get("keyword", "").strip()
-
             if keyword == "todaydeliveries":
-                sqlToday = """
+                sqlToday = f"""
                     SELECT o.*, COALESCE(c.fullname, 'Unknown') AS customer_name,
-                        COALESCE(c.phone, '') AS customer_phone,
-                        COALESCE(c.mobile, '') AS customer_mobile
+                           COALESCE(c.phone, '') AS customer_phone,
+                           COALESCE(c.mobile, '') AS customer_mobile
                     FROM tailor_order o
-                    LEFT JOIN tailor_customers c 
-                        ON o.id_customers = c.id_customers
-                    WHERE o.delivery_date = %(todayDate)s
+                    LEFT JOIN tailor_customers c ON o.id_customers = c.id_customers
+                    WHERE o.delivery_date = '{datetime.today().date()}'
                     AND o.status != 'Deleted'
                     ORDER BY o.id_order DESC
                 """
-                todayDeliveries = executeQuery(
-                    conn, sqlToday, {"todayDate": str(datetime.today().date())}, fetchAll=True)
-
+                todayDeliveries = executeQuery(sqlToday, fetchAll=True)
             elif keyword == "todayorders":
-                sqlTodayOrd = """
+                sqlTodayOrd = f"""
                     SELECT o.*, COALESCE(c.fullname, 'Unknown') AS customer_name,
-                        COALESCE(c.phone, '') AS customer_phone,
-                        COALESCE(c.mobile, '') AS customer_mobile
+                           COALESCE(c.phone, '') AS customer_phone,
+                           COALESCE(c.mobile, '') AS customer_mobile
                     FROM tailor_order o
-                    LEFT JOIN tailor_customers c 
-                        ON o.id_customers = c.id_customers
-                    WHERE o.order_date LIKE %(today)s
+                    LEFT JOIN tailor_customers c ON o.id_customers = c.id_customers
+                    WHERE o.order_date LIKE '{datetime.today().date()}%'
                     AND o.status != 'Deleted'
                     ORDER BY o.id_order DESC
                 """
-                todayDeliveries = executeQuery(
-                    conn, sqlTodayOrd, {"today": f"{datetime.today().date()}%"}, fetchAll=True)
-
+                todayDeliveries = executeQuery(sqlTodayOrd, fetchAll=True)
             page = 1
 
+        # Fetch orders for GET or POST keyword
         if not todayDeliveries:
             kw = f"%{keyword}%"
             offset = (page - 1) * perPage
 
-            sqlCount = """
+            sqlCount = f"""
                 SELECT COUNT(*) as total
                 FROM tailor_order
-                WHERE id_order LIKE %(kw)s
+                WHERE id_order LIKE '{kw}'
                 AND status != 'Deleted'
             """
-            totalFiltered = executeQuery(conn, sqlCount, {"kw": kw}, fetchOne=True)["total"]
+            # totalFiltered = executeQuery(sqlCount, fetchOne=True)["total"]
+            totalFiltered = int(executeQuery(sqlCount, fetchOne=True)["total"])
 
-            sqlPaged = """
+
+            sqlPaged = f"""
                 SELECT o.*, COALESCE(c.fullname, 'Unknown') AS customer_name,
-                    COALESCE(c.phone, '') AS customer_phone,
-                    COALESCE(c.mobile, '') AS customer_mobile
+                       COALESCE(c.phone, '') AS customer_phone,
+                       COALESCE(c.mobile, '') AS customer_mobile
                 FROM tailor_order o
-                LEFT JOIN tailor_customers c 
-                    ON o.id_customers = c.id_customers
-                WHERE o.id_order LIKE %(kw)s
+                LEFT JOIN tailor_customers c ON o.id_customers = c.id_customers
+                WHERE o.id_order LIKE '{kw}'
                 AND o.status != 'Deleted'
                 ORDER BY o.id_order DESC
-                LIMIT %(limit)s OFFSET %(offset)s
+                LIMIT {perPage} OFFSET {offset}
             """
-
-            orders = executeQuery(conn, sqlPaged,
-                {"kw": kw, "limit": perPage, "offset": offset}, fetchAll=True)
-
+            orders = executeQuery(sqlPaged, fetchAll=True)
         else:
             orders = todayDeliveries
             totalFiltered = len(todayDeliveries)
 
-        ordersWithStatuses = []
+        # -------------------------
+        # Batch fetch products & staff
+        # -------------------------
+        orderIds = [o["id_order"] for o in orders]
+        productsSql = f"SELECT * FROM tailor_products WHERE id_order IN ({','.join(map(str, orderIds))})"
+        allProducts = executeQuery(productsSql, fetchAll=True) or []
 
+        orderProductMap = {oid: [] for oid in orderIds}
+        staffIds = set()
+        for p in allProducts:
+            orderProductMap[p["id_order"]].append(p)
+            if p.get("id_staff"):
+                staffIds.add(p["id_staff"])
+            if p.get("cutting_staff"):
+                staffIds.add(p["cutting_staff"])
+
+        staffMap = {}
+        if staffIds:
+            staffSql = f"SELECT id_staff, fullname FROM tailor_staff WHERE id_staff IN ({','.join(map(str, staffIds))}) AND status != 'Deleted'"
+            staffData = executeQuery(staffSql, fetchAll=True) or []
+            staffMap = {s['id_staff']: s['fullname'] for s in staffData}
+
+        ordersWithStatuses = []
         for ordRow in orders:
             orderDict = dict(ordRow)
-
-            sqlProducts = """SELECT * FROM tailor_products WHERE id_order=%(oid)s"""
-            products = executeQuery(conn, sqlProducts, {"oid": orderDict["id_order"]}, fetchAll=True)
-            
+            orderDict["products"] = orderProductMap.get(orderDict["id_order"], [])
             cBill = float(orderDict.get("cloth_bill", 0.0))
             sBill = float(orderDict.get("stitching_bill", 0.0))
-            
-            totalBill = cBill + sBill
             advPay = float(orderDict.get("advance_payment", 0.0))
-            balAmt = round(float(totalBill - advPay), 2)
+            orderDict["balAmt"] = round(cBill + sBill - advPay, 2)
 
-            # orderDict["productStatuses"] = [row["status"] for row in products]
-            orderDict["balAmt"] = balAmt
-            orderDict["products"] = [row for row in products]
-            
             for p in orderDict["products"]:
-                p["p_stitching_staff"] = getStaffNameById(conn, p["id_staff"])
-                p["p_cutting_staff"] = getStaffNameById(conn, p["cutting_staff"])
-                
-                
-                jobStatus = None
-                if "cut" in p["status"]:
+                p["p_stitching_staff"] = staffMap.get(p.get("id_staff"), "-")
+                p["p_cutting_staff"] = staffMap.get(p.get("cutting_staff"), "-")
+
+                status = p.get("status", "").lower()
+                if "cut" in status:
                     jobStatus = "Cutting"
-
-                elif "sew" in p["status"]:
+                elif "sew" in status:
                     jobStatus = "Stitching"
-
-                elif "waiting" in p["status"]:
+                elif "waiting" in status:
                     jobStatus = "Ready"
-
-                elif "delivered" in p["status"]:
-                    jobStatus = p["status"].upper()
-
-                elif "new" in p["status"]:
-                    jobStatus = p["status"].upper()
-
+                elif "delivered" in status or "new" in status:
+                    jobStatus = status.upper()
                 else:
-                    jobStatus = p["status"].upper()
-                    
-              
-                    
+                    jobStatus = status.upper()
                 p["jobstatus"] = jobStatus
-                print(f"Job Status: {jobStatus} | {p["cutting_return_date"]} | {p['stitching_return_date']}")
 
             ordersWithStatuses.append(orderDict)
-
-        conn.close()
 
         ordersWithStatuses.sort(key=lambda o: int(o["id_order"]), reverse=True)
 
@@ -324,64 +216,12 @@ def listOrders():
         )
 
     except Exception as e:
-        print(e)
+        print("❌ Error fetching orders:", e)
+        tb = traceback.extract_tb(e.__traceback__)
+        if tb:
+            print("Error Line:", tb[-1].lineno)  # prints only the line number
         flash(f"Error fetching orders: {e}", "error")
         return redirect(url_for("homePage"))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-

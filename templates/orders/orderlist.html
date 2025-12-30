@@ -62,7 +62,12 @@
     <p class="text-sm text-gray-600">{{ o.customerMobile }} {{ o.customerPhone }}</p>
 
     <!-- Delivery Date -->
-    <p class="text-sm font-medium text-blue-700">Delivery: {{ o.delivery_date | convertDate }}</p>
+    <p class="text-sm font-medium text-blue-700">Delivery: 
+      {% if o.delivery_date == None %}
+        NONE
+      {% else %}
+        {{ o.delivery_date | convertDate }}</p>
+      {% endif %}
 
     <!-- Items -->
     <div class="mt-2">
@@ -95,7 +100,7 @@
           {% if "delivered" in itm.jobstatus | lower %}
             <div class="font-bold text-center rounded-md bg-blue-800 text-white text-xs">Delivered</div>
           {% elif "sew" in itm.jobstatus | lower %}
-            <div class="font-bold text-center rounded-md bg-orange-600 text-white text-xs">Stitching</div>
+            <div class="font-bold text-center rounded-md bg-red-100 text-gray-800 text-xs">Stitching</div>
           {% elif "cutting" in itm.jobstatus | lower %}
             <div class="font-bold text-center rounded-md bg-red-900 text-white text-xs">Cutting</div>
           {% elif "ready" in itm.jobstatus | lower %}
