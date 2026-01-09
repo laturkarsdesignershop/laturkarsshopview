@@ -13,8 +13,8 @@ password="LaturkarsMV@1234"
 
 
 
-// Database connection credentials
-$host = "auth-db788.hstgr.io";
-$database = "u777474409_ltmobileview";
-$user = "u777474409_laturkarsmv";
-$password = "LaturkarsMV@1234";
+# // Database connection credentials
+# $host = "auth-db788.hstgr.io";
+# $database = "u777474409_ltmobileview";
+# $user = "u777474409_laturkarsmv";
+# $password = "LaturkarsMV@1234";

@@ -206,10 +206,11 @@ if __name__ == "__main__":
 
     conn = createConnection()
     if conn:
-        # emptyTable(conn, "tailor_order")
-        # emptyTable(conn, "tailor_products")
-        # emptyTable(conn, "tailor_customers")
-        # emptyTable(conn, "tailor_staff")
+        
+        emptyTable(conn, "tailor_order")
+        emptyTable(conn, "tailor_products")
+        emptyTable(conn, "tailor_customers")
+        emptyTable(conn, "tailor_staff")
         
         
         # for orderData in orderDataList:

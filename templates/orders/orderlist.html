@@ -99,8 +99,8 @@
 
           {% if "delivered" in itm.jobstatus | lower %}
             <div class="font-bold text-center rounded-md bg-blue-800 text-white text-xs">Delivered</div>
-          {% elif "sew" in itm.jobstatus | lower %}
-            <div class="font-bold text-center rounded-md bg-red-100 text-gray-800 text-xs">Stitching</div>
+          {% elif "sew" in itm.jobstatus | lower or "stit" in itm.jobstatus | lower %}
+            <div class="font-bold text-center rounded-md bg-yellow-900 text-white text-xs">Stitching 123</div>
           {% elif "cutting" in itm.jobstatus | lower %}
             <div class="font-bold text-center rounded-md bg-red-900 text-white text-xs">Cutting</div>
           {% elif "ready" in itm.jobstatus | lower %}
@@ -108,7 +108,7 @@
           {% elif "new" in itm.jobstatus | lower %}
             <div class="font-bold text-center rounded-md bg-green-300  text-xs">New</div>
           {% else %}
-            <div class="font-bold text-center rounded-md bg-gray-800 text-xs">{{itm.jobstatus}}</div>
+            <div class="font-bold text-center rounded-md bg-gray-800 text-white text-xs">{{itm.jobstatus}}</div>
           {% endif %}
 
 
